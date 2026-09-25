@@ -1,78 +1,358 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1f4e79">
-  <meta name="application-name" content="Agendamento Ideal">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Agendamento Ideal">
-  <meta name="format-detection" content="telephone=no">
-  <meta name="description" content="Agendamento de Recebimento - Ideal Supermercado">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#1f4e79"
+  >
+
+  <meta
+    name="application-name"
+    content="Agendamento Ideal"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Agendamento Ideal"
+  >
+
+  <meta
+    name="format-detection"
+    content="telephone=no"
+  >
+
+  <meta
+    name="description"
+    content="Agendamento de Recebimento - Ideal Supermercado"
+  >
+
+  <link
+    rel="manifest"
+    href="./manifest.webmanifest"
+  >
+
+  <link
+    rel="icon"
+    type="image/png"
+    sizes="192x192"
+    href="./icon-192.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="./icon-192.png"
+  >
+
   <title>Agendamento Ideal</title>
+
+
   <style>
-    * { box-sizing: border-box; }
-    html, body { margin:0; width:100%; height:100%; background:#f3f5f7; }
-    body { font-family:Arial, Helvetica, sans-serif; overflow:hidden; }
-    #appFrame { display:block; width:100%; height:100dvh; min-height:100vh; border:0; background:#f3f5f7; }
-    #erro { display:none; position:fixed; inset:0; z-index:10; align-items:center; justify-content:center; padding:24px; background:#f3f5f7; }
-    .erro-card { width:min(520px,100%); background:#fff; border-radius:16px; padding:24px; box-shadow:0 8px 30px rgba(0,0,0,.12); text-align:center; }
-    .erro-card h1 { margin:0 0 10px; color:#1f4e79; font-size:22px; }
-    .erro-card p { color:#667085; line-height:1.5; }
-    .erro-card button { border:0; border-radius:10px; padding:12px 18px; background:#1f4e79; color:#fff; font-weight:700; cursor:pointer; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #f3f5f7;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    #appFrame {
+      display: block;
+      width: 100%;
+      height: 100dvh;
+      min-height: 100vh;
+      border: 0;
+      background: #f3f5f7;
+    }
+
+    #erro {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: #f3f5f7;
+    }
+
+    .erro-card {
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .12);
+      text-align: center;
+    }
+
+    .erro-card h1 {
+      margin: 0 0 10px;
+      color: #1f4e79;
+      font-size: 22px;
+    }
+
+    .erro-card p {
+      color: #667085;
+      line-height: 1.5;
+    }
+
+    .erro-card button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      background: #1f4e79;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
   </style>
+
 </head>
+
+
 <body>
-  <iframe id="appFrame" title="Agendamento de Recebimento - Ideal Supermercado" allow="clipboard-read; clipboard-write"></iframe>
+
+
+  <iframe
+    id="appFrame"
+    title="Agendamento de Recebimento - Ideal Supermercado"
+    allow="clipboard-read; clipboard-write"
+  ></iframe>
+
 
   <div id="erro">
+
     <div class="erro-card">
-      <h1>Agendamento Ideal</h1>
-      <p id="erroTexto">A configuração da PWA ainda não foi concluída.</p>
-      <button type="button" onclick="location.reload()">Tentar novamente</button>
+
+      <h1>
+        Agendamento Ideal
+      </h1>
+
+      <p id="erroTexto">
+        Carregando sistema...
+      </p>
+
+      <button
+        type="button"
+        onclick="location.reload(true)"
+      >
+        Tentar novamente
+      </button>
+
     </div>
+
   </div>
 
-  <script src="./config.js?v=2"></script>
+
+  <!--
+    =========================================================
+    CONFIGURAÇÃO DA PWA
+    =========================================================
+
+    O arquivo config.js continua sendo utilizado.
+
+    Caso o navegador não consiga carregar o config.js,
+    a URL abaixo será utilizada automaticamente.
+  -->
+
+  <script src="./config.js?v=9999"></script>
+
+
   <script>
+
     (function iniciarAplicacao() {
-      var frame = document.getElementById('appFrame');
-      var erro = document.getElementById('erro');
-      var erroTexto = document.getElementById('erroTexto');
-      var url = String(window.APP_SCRIPT_URL || '').trim();
 
-      if (!url || url.indexOf('COLE_AQUI_') === 0) {
-        frame.style.display = 'none';
-        erro.style.display = 'flex';
-        erroTexto.textContent = 'Abra o arquivo config.js e informe a URL /exec da implantação do Google Apps Script.';
-        return;
+      var frame =
+        document.getElementById('appFrame');
+
+      var erro =
+        document.getElementById('erro');
+
+      var erroTexto =
+        document.getElementById('erroTexto');
+
+
+      /*
+       * URL PRINCIPAL DO GOOGLE APPS SCRIPT
+       *
+       * Esta é a mesma URL configurada no config.js.
+       *
+       * O fallback garante que a PWA continue funcionando
+       * mesmo se o navegador estiver com o config.js em cache.
+       */
+
+      var URL_FALLBACK =
+        'https://script.google.com/macros/s/AKfycbyrvZJMrtHSJDitYf0XIYeXQRb9knLq7D2UZKVLRbgqx6El6Z9bbkGQK2tmOIkwjb1Wmw/exec';
+
+
+      /*
+       * Primeiro tenta utilizar a configuração externa.
+       */
+
+      var url =
+        String(
+          window.APP_SCRIPT_URL || ''
+        ).trim();
+
+
+      /*
+       * Se não encontrou a configuração,
+       * utiliza automaticamente o endereço correto.
+       */
+
+      if (
+        !url ||
+        url.indexOf('COLE_AQUI_') === 0
+      ) {
+
+        url = URL_FALLBACK;
+
       }
 
-      if (!/^https:\/\//i.test(url)) {
+
+      /*
+       * Validação da URL.
+       */
+
+      if (
+        !/^https:\/\/script\.google\.com\/macros\/s\//i.test(url)
+      ) {
+
         frame.style.display = 'none';
+
         erro.style.display = 'flex';
-        erroTexto.textContent = 'A URL do Google Apps Script precisa começar com https://.';
+
+        erroTexto.textContent =
+          'A configuração do Google Apps Script não está correta.';
+
         return;
+
       }
+
+
+      /*
+       * Mostra o iframe.
+       */
+
+      frame.style.display = 'block';
+
+      erro.style.display = 'none';
+
+
+      /*
+       * Abre o sistema principal.
+       */
 
       frame.src = url;
+
+
+      /*
+       * Detecta erro de carregamento do iframe.
+       */
+
+      frame.addEventListener(
+        'load',
+        function () {
+
+          console.log(
+            'Agendamento Ideal: sistema carregado.'
+          );
+
+        }
+      );
+
+
+      console.log(
+        'Agendamento Ideal PWA inicializada.'
+      );
+
+      console.log(
+        'URL utilizada:',
+        url
+      );
+
     })();
 
+
+    /*
+     * =====================================================
+     * SERVICE WORKER
+     * =====================================================
+     */
+
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./service-worker.js', { scope: './' })
-          .then(function (registro) {
-            console.log('Agendamento Ideal PWA: Service Worker ativo.', registro.scope);
-          })
-          .catch(function (erro) {
-            console.warn('Agendamento Ideal PWA: falha no Service Worker.', erro);
-          });
-      });
+
+      window.addEventListener(
+        'load',
+        function () {
+
+          navigator.serviceWorker
+            .register(
+              './service-worker.js?v=9999',
+              {
+                scope: './'
+              }
+            )
+
+            .then(
+              function (registro) {
+
+                console.log(
+                  'Agendamento Ideal PWA: Service Worker ativo.',
+                  registro.scope
+                );
+
+              }
+            )
+
+            .catch(
+              function (erro) {
+
+                console.warn(
+                  'Agendamento Ideal PWA: falha no Service Worker.',
+                  erro
+                );
+
+              }
+            );
+
+        }
+      );
+
     }
+
   </script>
+
+
 </body>
+
 </html>
