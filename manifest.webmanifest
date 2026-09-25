@@ -3,7 +3,7 @@
   "short_name": "Agendamento Ideal",
   "description": "Agendamento de Recebimento - Ideal Supermercado",
   "lang": "pt-BR",
-  "start_url": "./?app=v4",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -11,13 +11,13 @@
   "theme_color": "#c00000",
   "icons": [
     {
-      "src": "./icon-192-v4.png",
+      "src": "./icon-192-v5.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512-v4.png",
+      "src": "./icon-512-v5.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
