@@ -5,8 +5,8 @@ const STATIC_ASSETS = [
   './index.html',
   './config.js?v=9999',
   './manifest.webmanifest',
-  './icon-192-v4.png',
-  './icon-512-v4.png'
+  './icon-192-v5.png',
+  './icon-512-v5.png'
 ];
 
 self.addEventListener('install', function(event) {
@@ -41,7 +41,6 @@ self.addEventListener('fetch', function(event) {
   var request = event.request;
   var url = new URL(request.url);
 
-  // Nunca interceptar o Google Apps Script do sistema.
   if (
     url.hostname.indexOf('script.google.com') !== -1 ||
     url.hostname.indexOf('googleusercontent.com') !== -1
@@ -49,23 +48,22 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // Somente recursos da própria PWA estática.
   if (url.origin !== self.location.origin) return;
   if (request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(request).then(function(cached) {
-      if (cached) {
-        return cached;
-      }
+      if (cached) return cached;
 
       return fetch(request).then(function(response) {
         if (response && response.ok) {
           var copy = response.clone();
+
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(request, copy);
           });
         }
+
         return response;
       });
     })
