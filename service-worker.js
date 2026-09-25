@@ -1,11 +1,12 @@
-const CACHE_NAME = 'agendamento-ideal-pwa-v4-logo';
+const CACHE_NAME = 'agendamento-ideal-pwa-v5-icon';
+
 const STATIC_ASSETS = [
   './',
   './index.html',
   './config.js?v=9999',
   './manifest.webmanifest',
-  './icon-192.png?v=2',
-  './icon-512.png?v=2'
+  './icon-192-v4.png',
+  './icon-512-v4.png'
 ];
 
 self.addEventListener('install', function(event) {
@@ -61,12 +62,10 @@ self.addEventListener('fetch', function(event) {
       return fetch(request).then(function(response) {
         if (response && response.ok) {
           var copy = response.clone();
-
           caches.open(CACHE_NAME).then(function(cache) {
             cache.put(request, copy);
           });
         }
-
         return response;
       });
     })
