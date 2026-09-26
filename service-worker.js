@@ -1,4 +1,4 @@
-const CACHE_NAME = "agendamento-ideal-v2";
+const CACHE_NAME = "agendamento-ideal-v3";
 
 const FILES_TO_CACHE = [
   "./",
@@ -6,7 +6,9 @@ const FILES_TO_CACHE = [
   "./config.js",
   "./manifest.webmanifest",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./icon-maskable-192.png",
+  "./icon-maskable-512.png"
 ];
 
 self.addEventListener("install", event => {
