@@ -37,7 +37,7 @@
     .card {
       width: 100%;
       max-width: 380px;
-      background: #fff;
+      background: #ffffff;
       border-radius: 20px;
       padding: 32px 24px;
       text-align: center;
@@ -45,10 +45,11 @@
     }
 
     .logo {
-      width: 120px;
-      height: 120px;
-      border-radius: 24px;
-      margin-bottom: 18px;
+      width: 110px;
+      height: 110px;
+      object-fit: contain;
+      border-radius: 20px;
+      margin-bottom: 16px;
     }
 
     h1 {
@@ -58,7 +59,7 @@
     }
 
     p {
-      margin: 0 0 25px;
+      margin: 0 0 24px;
       color: #555;
       line-height: 1.4;
     }
@@ -67,12 +68,12 @@
       display: block;
       width: 100%;
       padding: 16px;
-      border-radius: 10px;
       background: #d71920;
-      color: #fff;
+      color: #ffffff;
       text-decoration: none;
       font-size: 17px;
       font-weight: bold;
+      border-radius: 10px;
     }
 
     .btn:active {
@@ -83,7 +84,7 @@
 
 <body>
 
-  <div class="card">
+  <main class="card">
     <img
       class="logo"
       src="./icon-192.png"
@@ -92,21 +93,13 @@
 
     <h1>Agendamento IDEAL</h1>
 
-    <p>
-      Sistema de Agendamento de Recebimento
-    </p>
+    <p>Sistema de Agendamento de Recebimento</p>
 
-   <a
- <a
-  class="btn"
-  href="https://script.google.com/macros/s/AKfycbyrvZJMrtHSJDitYf0XIYeXQRb9knLq7D2UZKVLRbgqx6El6Z9bbkGQK2tmOIkwjb1Wmw/exec"
->
-  Entrar no Agendamento
-</a>
->
-  Entrar no Agendamento
-</a>
-  </div>
+    <a
+      class="btn"
+      href="https://script.google.com/macros/s/AKfycbyrvZJMrtHSJDitYf0XIYeXQRb9knLq7D2UZKVLRbgqx6El6Z9bbkGQK2tmOIkwjb1Wmw/exec"
+    >Entrar no Agendamento</a>
+  </main>
 
   <script>
     if ("serviceWorker" in navigator) {
