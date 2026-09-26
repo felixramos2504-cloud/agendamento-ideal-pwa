@@ -62,7 +62,7 @@
 
     window.addEventListener("load", function () {
       if (window.APP_SCRIPT_URL) {
-        window.location.replace(window.APP_SCRIPT_URL);
+        window.location.href = window.APP_SCRIPT_URL;
       } else {
         document.querySelector(".loading p").textContent =
           "Não foi possível abrir o sistema.";
