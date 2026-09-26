@@ -12,100 +12,12 @@
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    html, body {
-      margin: 0;
-      width: 100%;
-      min-height: 100%;
-      font-family: Arial, sans-serif;
-      background: #d71920;
-    }
-
-    body {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .card {
-      width: 100%;
-      max-width: 380px;
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 32px 24px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,.18);
-    }
-
-    .logo {
-      width: 110px;
-      height: 110px;
-      object-fit: contain;
-      border-radius: 20px;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      color: #d71920;
-      font-size: 25px;
-    }
-
-    p {
-      margin: 0 0 24px;
-      color: #555;
-      line-height: 1.4;
-    }
-
-    .btn {
-      display: block;
-      width: 100%;
-      padding: 16px;
-      background: #d71920;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 17px;
-      font-weight: bold;
-      border-radius: 10px;
-    }
-
-    .btn:active {
-      transform: scale(.98);
-    }
-  </style>
 </head>
 
 <body>
-
-  <main class="card">
-    <img
-      class="logo"
-      src="./icon-192.png"
-      alt="IDEAL Supermercados"
-    >
-
-    <h1>Agendamento IDEAL</h1>
-
-    <p>Sistema de Agendamento de Recebimento</p>
-
-    <a
-      class="btn"
-      href="https://script.google.com/macros/s/AKfycbyrvZJMrtHSJDitYf0XIYeXQRb9knLq7D2UZKVLRbgqx6El6Z9bbkGQK2tmOIkwjb1Wmw/exec"
-    >Entrar no Agendamento</a>
-  </main>
-
   <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./service-worker.js");
-    }
+    window.location.href =
+      "https://script.google.com/macros/s/AKfycbyrvZJMrtHSJDitYf0XIYeXQRb9knLq7D2UZKVLRbgqx6El6Z9bbkGQK2tmOIkwjb1Wmw/exec";
   </script>
-
 </body>
 </html>
