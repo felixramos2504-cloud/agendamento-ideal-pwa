@@ -1,4 +1,4 @@
-const CACHE_NAME = "agendamento-ideal-v4";
+const CACHE_NAME = "agendamento-ideal-v5";
 
 const FILES_TO_CACHE = [
   "./",
