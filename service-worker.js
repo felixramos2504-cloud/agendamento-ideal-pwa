@@ -1,4 +1,4 @@
-const CACHE_NAME = "agendamento-ideal-v10";
+const CACHE_NAME = "agendamento-ideal-v11";
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
@@ -8,6 +8,7 @@ const FILES_TO_CACHE = [
   "./icon-512.png",
   "./icon-maskable-192.png",
   "./icon-maskable-512.png"
+   "./logo-splash.png"
 ];
 
 self.addEventListener("install", event => {
