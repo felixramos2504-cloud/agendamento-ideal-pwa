@@ -493,7 +493,9 @@ body.idealSplashAberta #iosHelp{
   <div id="pushBox">
     <button id="btnPush" type="button">🔔 Ativar notificações</button>
     <button id="btnPushLocalTest" type="button" style="display:none;margin-top:8px;background:#fff;color:#e30613;border:1px solid #e30613;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer">🧪 Testar notificação local</button>
+    <button id="btnPushDiag" type="button" style="display:none;margin-top:8px;background:#202124;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer">🔎 Diagnóstico Push</button>
     <div id="pushMsg"></div>
+    <div id="pushDiagPanel" style="display:none;margin-top:10px;background:#111;color:#e8eaed;border-radius:10px;padding:10px;max-width:min(92vw,560px);max-height:320px;overflow:auto;text-align:left;font:12px/1.45 Consolas,Monaco,monospace;white-space:pre-wrap;word-break:break-word"></div>
   </div>
 
   <div id="pushToast" role="status" aria-live="polite">
@@ -629,7 +631,7 @@ body.idealSplashAberta #iosHelp{
     const VAPID_PUBLIC_KEY =
       "BFqbS_rj0lihvZnpl3n6RBf58k1U5S8i96ziLKok2d19uuV8oo1hv6utVLz2KIUaJYKkdaYpHzuw0T1dVK4_2Mw";
 
-    const IDEAL_PUSH_VERSION = '12.15.4';
+    const IDEAL_PUSH_VERSION = '12.15.5';
     const IDEAL_SW_URL = './service-worker.js?v=12154';
 
     const btnPush =
@@ -640,6 +642,12 @@ body.idealSplashAberta #iosHelp{
 
     const btnPushLocalTest =
       document.getElementById('btnPushLocalTest');
+
+    const btnPushDiag =
+      document.getElementById('btnPushDiag');
+
+    const pushDiagPanel =
+      document.getElementById('pushDiagPanel');
 
     const pushToast =
       document.getElementById('pushToast');
@@ -1467,6 +1475,108 @@ body.idealSplashAberta #iosHelp{
       };
       atualizarTesteLocal();
       window.addEventListener('focus', atualizarTesteLocal);
+    }
+
+    /* MASTER 12 · ETAPA 15.5 — leitura simples do diagnóstico persistente do Service Worker. */
+    async function lerDiagnosticoPush12155(){
+      if(!pushDiagPanel) return;
+
+      pushDiagPanel.style.display = 'block';
+      pushDiagPanel.textContent = 'Lendo diagnóstico Push...';
+
+      const linhas = [];
+      linhas.push('IDEAL OFERTAS — DIAGNÓSTICO PUSH 12.15.5');
+      linhas.push('Data: ' + new Date().toLocaleString('pt-BR'));
+      linhas.push('Permissão: ' + (('Notification' in window) ? Notification.permission : 'não suportado'));
+      linhas.push('Service Worker suportado: ' + ('serviceWorker' in navigator ? 'SIM' : 'NÃO'));
+      linhas.push('Página controlada pelo SW: ' + (navigator.serviceWorker && navigator.serviceWorker.controller ? 'SIM' : 'NÃO'));
+      linhas.push('Token salvo no PWA: ' + (localStorage.getItem('idealFcmToken') ? 'SIM' : 'NÃO'));
+
+      try{
+        const reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration('./') : null;
+        linhas.push('Registro SW: ' + (reg ? 'SIM' : 'NÃO'));
+        linhas.push('SW ativo: ' + (reg && reg.active ? 'SIM' : 'NÃO'));
+      }catch(err){
+        linhas.push('Erro ao consultar SW: ' + String(err && (err.message || err) || err));
+      }
+
+      linhas.push('');
+      linhas.push('ÚLTIMOS EVENTOS DO SERVICE WORKER:');
+
+      try{
+        const eventos = await new Promise((resolve, reject) => {
+          const req = indexedDB.open('idealPushDiagnostico', 1);
+          req.onerror = () => reject(req.error || new Error('Falha ao abrir IndexedDB.'));
+          req.onupgradeneeded = () => {
+            const db = req.result;
+            if(!db.objectStoreNames.contains('eventos')){
+              db.createObjectStore('eventos', {keyPath:'id', autoIncrement:true});
+            }
+          };
+          req.onsuccess = () => {
+            const db = req.result;
+            if(!db.objectStoreNames.contains('eventos')){
+              db.close();
+              resolve([]);
+              return;
+            }
+            const tx = db.transaction('eventos', 'readonly');
+            const store = tx.objectStore('eventos');
+            const lista = [];
+            const cursorReq = store.openCursor(null, 'prev');
+            cursorReq.onerror = () => { db.close(); reject(cursorReq.error || new Error('Falha ao ler eventos.')); };
+            cursorReq.onsuccess = ev => {
+              const cursor = ev.target.result;
+              if(cursor && lista.length < 25){
+                lista.push(cursor.value);
+                cursor.continue();
+              }else{
+                db.close();
+                resolve(lista);
+              }
+            };
+          };
+        });
+
+        if(!eventos.length){
+          linhas.push('Nenhum evento gravado até agora.');
+          linhas.push('Faça o teste pelo Admin com o PWA em segundo plano e abra este diagnóstico novamente.');
+        }else{
+          eventos.forEach((ev, i) => {
+            linhas.push('[' + (i + 1) + '] ' + (ev.data || '') + ' — ' + (ev.tipo || 'SEM_TIPO'));
+            if(ev.detalhe){ linhas.push(String(ev.detalhe)); }
+          });
+        }
+
+        linhas.push('');
+        linhas.push('COMO INTERPRETAR:');
+        linhas.push('- PUSH_RAW_RECEBIDO = o navegador recebeu o Push.');
+        linhas.push('- FCM_BACKGROUND_RECEBIDO = o Firebase entregou ao handler em segundo plano.');
+        linhas.push('- SHOW_NOTIFICATION_OK = o Service Worker conseguiu mandar exibir a notificação.');
+        linhas.push('- SHOW_NOTIFICATION_ERRO = a exibição falhou e o detalhe deve indicar o motivo.');
+      }catch(err){
+        linhas.push('ERRO AO LER LOG: ' + String(err && (err.stack || err.message) || err));
+      }
+
+      pushDiagPanel.textContent = linhas.join('\n');
+      try{
+        await navigator.clipboard.writeText(pushDiagPanel.textContent);
+        mostrarMensagemPush('✅ Diagnóstico exibido e copiado. Se a notificação não aparecer, envie este texto.');
+      }catch(_){
+        mostrarMensagemPush('✅ Diagnóstico exibido. Se a notificação não aparecer, copie e envie o texto mostrado abaixo.');
+      }
+    }
+
+    if(btnPushDiag){
+      btnPushDiag.addEventListener('click', lerDiagnosticoPush12155);
+      const atualizarBotaoDiag = () => {
+        btnPushDiag.style.display =
+          ('Notification' in window && Notification.permission === 'granted')
+            ? 'inline-block'
+            : 'none';
+      };
+      atualizarBotaoDiag();
+      window.addEventListener('focus', atualizarBotaoDiag);
     }
 
     btnPush.addEventListener(
