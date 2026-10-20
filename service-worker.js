@@ -1,9 +1,9 @@
 /* =========================================================
-   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.3 — PUSH EM SEGUNDO PLANO
+   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.5.1 — DIAGNÓSTICO + CACHE NOVO
    FIREBASE MESSAGING + PWA — FID
    ========================================================= */
 
-const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-3-background';
+const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-5-1-diagnostico';
 
 const STATIC_FILES = [
   './',
