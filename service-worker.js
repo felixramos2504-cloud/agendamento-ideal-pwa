@@ -1,5 +1,5 @@
 /* =========================================================
-   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.4 — PUSH EM SEGUNDO PLANO
+   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.3 — PUSH EM SEGUNDO PLANO
    FIREBASE MESSAGING + PWA — FID
    ========================================================= */
 
@@ -180,7 +180,7 @@ messaging.onBackgroundMessage(payload => {
   };
 
   console.log(
-    '[IDEAL Push] Mensagem recebida em segundo plano:',
+    '[IDEAL Push 12.15.4] Mensagem recebida em segundo plano:',
     payload
   );
 
@@ -191,36 +191,16 @@ messaging.onBackgroundMessage(payload => {
     );
 
     /*
-     * MASTER 9.7.6.1 — CORREÇÃO DE DUPLICIDADE
+     * MASTER 12 · ETAPA 15.4 — EXIBIÇÃO EXPLÍCITA
      *
-     * Quando a mensagem possui "notification", o próprio Firebase
-     * Messaging exibe a notificação do sistema automaticamente em segundo plano.
-     * O servidor da MASTER 12.15.4 passou a enviar este formato por padrão.
-     *
-     * A versão anterior chamava showNotification() novamente,
-     * causando duas notificações iguais.
+     * Mesmo quando o payload contém "notification", exibimos a
+     * notificação explicitamente pelo Service Worker. Isso segue o
+     * padrão documentado do Firebase para onBackgroundMessage e evita
+     * depender da exibição automática do SDK/navegador.
      */
-    if(
-      payload &&
-      payload.notification
-    ){
-      await logDiag(
-        'FCM_AUTO_NOTIFICATION',
-        {
-          title:
-            payload.notification.title || '',
-          body:
-            payload.notification.body || ''
-        }
-      );
+    const notification =
+      (payload && payload.notification) || {};
 
-      return;
-    }
-
-    /*
-     * Mensagens DATA-ONLY não são exibidas automaticamente.
-     * Para elas mantemos showNotification() manual.
-     */
     const data =
       (payload && payload.data) || {};
 
@@ -228,22 +208,28 @@ messaging.onBackgroundMessage(payload => {
       (payload && payload.fcmOptions) || {};
 
     const title =
+      notification.title ||
       data.title ||
       'IDEAL Supermercados';
 
     const options = {
       body:
+        notification.body ||
         data.body ||
         'Você recebeu uma nova atualização.',
       icon:
+        notification.icon ||
         data.icon ||
         './icon-192.png',
       badge:
+        data.badge ||
         './icon-192.png',
       tag:
+        notification.tag ||
         data.tag ||
         'ideal-ofertas',
       renotify: true,
+      requireInteraction: false,
       data: {
         url:
           fcmOptions.link ||
@@ -258,19 +244,28 @@ messaging.onBackgroundMessage(payload => {
         options
       );
 
-      /* Também avisa páginas abertas para atualizar o toast/central em tempo real. */
       try{
-        const clientes = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+        const clientes = await self.clients.matchAll({
+          type: 'window',
+          includeUncontrolled: true
+        });
         for(const client of clientes){
-          client.postMessage({type:'IDEAL_PUSH', payload:{data:data}});
+          client.postMessage({
+            type: 'IDEAL_PUSH',
+            payload: {
+              notification: notification,
+              data: data
+            }
+          });
         }
       }catch(_){ }
 
       await logDiag(
         'SHOW_NOTIFICATION_OK',
         {
-          title,
-          body: options.body
+          title: title,
+          body: options.body,
+          possuiNotification: !!(payload && payload.notification)
         }
       );
     }catch(err){
