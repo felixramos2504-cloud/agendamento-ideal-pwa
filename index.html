@@ -492,6 +492,7 @@ body.idealSplashAberta #iosHelp{
   <!-- MASTER 9.7.2 — NOTIFICAÇÕES PUSH -->
   <div id="pushBox">
     <button id="btnPush" type="button">🔔 Ativar notificações</button>
+    <button id="btnPushHardRepair" type="button" style="display:none;margin-top:8px;background:#e30613;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer">🛠️ Reparar notificações</button>
     <button id="btnPushLocalTest" type="button" style="display:none;margin-top:8px;background:#fff;color:#e30613;border:1px solid #e30613;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer">🧪 Testar aviso neste aparelho</button>
     <div id="pushMsg"></div>
   </div>
@@ -545,7 +546,7 @@ body.idealSplashAberta #iosHelp{
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=12154', { scope: './', updateViaCache: 'none' })
+        navigator.serviceWorker.register('./service-worker.js?v=12153', { scope: './', updateViaCache: 'none' })
           .then(reg => console.log('IDEAL PWA ativo:', reg.scope))
           .catch(err => console.error('Erro Service Worker:', err));
       });
@@ -638,6 +639,9 @@ body.idealSplashAberta #iosHelp{
     const pushMsg =
       document.getElementById('pushMsg');
 
+    const btnPushHardRepair =
+      document.getElementById('btnPushHardRepair');
+
     const btnPushLocalTest =
       document.getElementById('btnPushLocalTest');
 
@@ -695,6 +699,94 @@ body.idealSplashAberta #iosHelp{
       }
 
       return token || '';
+    }
+
+    async function repararRegistroPush12154({automatico=false}={}){
+      if(!('Notification' in window) || !('serviceWorker' in navigator)){
+        throw new Error('Este navegador não oferece suporte às notificações necessárias.');
+      }
+
+      if(Notification.permission !== 'granted'){
+        if(automatico) return '';
+        const permissao = await Notification.requestPermission();
+        if(permissao !== 'granted'){
+          throw new Error('Permissão de notificações não concedida.');
+        }
+      }
+
+      if(!automatico){
+        mostrarMensagemPush('🛠️ Reparando o cadastro Firebase deste aparelho...', 15000);
+      }
+
+      /* Remove o token conhecido pelo SDK. */
+      try{
+        await deleteToken(messaging);
+      }catch(err){
+        console.warn('[IDEAL Push 12.15.4] deleteToken:', err);
+      }
+
+      /* Remove somente a inscrição Push deste PWA para obrigar uma nova inscrição. */
+      try{
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for(const reg of regs){
+          const scope = String(reg.scope || '');
+          if(!scope.includes('/ideal-ofertas-pwa/')) continue;
+          try{
+            const sub = await reg.pushManager.getSubscription();
+            if(sub) await sub.unsubscribe();
+          }catch(err){
+            console.warn('[IDEAL Push 12.15.4] unsubscribe:', err);
+          }
+        }
+      }catch(err){
+        console.warn('[IDEAL Push 12.15.4] subscriptions:', err);
+      }
+
+      [
+        'idealFcmToken',
+        'idealFcmTokenAtualizadoEm',
+        'idealPushTokenSalvoNaPlanilha',
+        'idealPushTokenSalvoEm',
+        'idealPushVersion',
+        IDEAL_PUSH_RECOVERY_KEY,
+        IDEAL_PUSH_REFRESH_KEY
+      ].forEach(k => localStorage.removeItem(k));
+
+      const registration = await navigator.serviceWorker.register(
+        IDEAL_SW_URL,
+        {scope:'./', updateViaCache:'none'}
+      );
+      try{ await registration.update(); }catch(_){}
+      const swRegistration = registration.active ? registration : await navigator.serviceWorker.ready;
+
+      const novoToken = await getToken(messaging, {
+        vapidKey: VAPID_PUBLIC_KEY,
+        serviceWorkerRegistration: swRegistration
+      });
+
+      if(!novoToken){
+        throw new Error('O Firebase não retornou um novo token FCM.');
+      }
+
+      localStorage.setItem('idealFcmToken', novoToken);
+      localStorage.setItem('idealFcmTokenAtualizadoEm', new Date().toISOString());
+      localStorage.setItem('idealPushVersion', IDEAL_PUSH_VERSION);
+      localStorage.setItem(IDEAL_PUSH_RECOVERY_KEY, '1');
+      localStorage.setItem(IDEAL_PUSH_REFRESH_KEY, String(Date.now()));
+
+      tokenConfirmadoBackend = '';
+      ultimoTokenEnviado = '';
+      cadastrarTokenComTentativas(novoToken);
+      atualizarBotaoPush();
+
+      if(!automatico){
+        mostrarMensagemPush(
+          '✅ Novo token Firebase gerado. Final: …' + novoToken.slice(-10) + '. Aguarde alguns segundos e atualize os aparelhos no Admin.',
+          15000
+        );
+      }
+
+      return novoToken;
     }
 
     async function atualizarRegistroPush1215SeNecessario(){
@@ -1457,13 +1549,28 @@ body.idealSplashAberta #iosHelp{
       }
     }
 
+    if(btnPushHardRepair){
+      btnPushHardRepair.addEventListener('click', async () => {
+        btnPushHardRepair.disabled = true;
+        btnPushHardRepair.textContent = 'Reparando...';
+        try{
+          await repararRegistroPush12154({automatico:false});
+        }catch(err){
+          console.error('[IDEAL Push 12.15.4] Reparo falhou:', err);
+          mostrarMensagemPush('❌ Reparo falhou: ' + String(err && (err.message||err) || err), 15000);
+        }finally{
+          btnPushHardRepair.disabled = false;
+          btnPushHardRepair.textContent = '🛠️ Reparar notificações';
+        }
+      });
+    }
+
     if(btnPushLocalTest){
       btnPushLocalTest.addEventListener('click', testarNotificacaoLocal12153);
       const atualizarTesteLocal = () => {
-        btnPushLocalTest.style.display =
-          ('Notification' in window && Notification.permission === 'granted')
-            ? 'inline-block'
-            : 'none';
+        const pode = ('Notification' in window && Notification.permission === 'granted');
+        btnPushLocalTest.style.display = pode ? 'inline-block' : 'none';
+        if(btnPushHardRepair) btnPushHardRepair.style.display = pode ? 'inline-block' : 'none';
       };
       atualizarTesteLocal();
       window.addEventListener('focus', atualizarTesteLocal);
@@ -1477,17 +1584,12 @@ body.idealSplashAberta #iosHelp{
           'granted'
         ){
           try{
-            /* Clique manual passa a funcionar também como reparo do aparelho. */
-            try{ await deleteToken(messaging); }catch(_){}
-            localStorage.removeItem('idealFcmToken');
-            localStorage.removeItem(IDEAL_PUSH_RECOVERY_KEY);
-
-            const token =
-              await renovarRegistroPush1215();
+            const token = await repararRegistroPush12154({automatico:false});
 
             if(token){
               mostrarMensagemPush(
-                '✅ Notificações reparadas e dispositivo recadastrado.'
+                '✅ Notificações reparadas e dispositivo recadastrado.',
+                12000
               );
             }
           }catch(err){
@@ -1586,15 +1688,19 @@ body.idealSplashAberta #iosHelp{
       window.setTimeout(
         async () => {
           try{
-            await renovarRegistroPush1215();
+            if(localStorage.getItem(IDEAL_PUSH_RECOVERY_KEY) !== '1'){
+              await repararRegistroPush12154({automatico:true});
+            }else{
+              await atualizarRegistroPush1215SeNecessario();
+            }
           }catch(err){
             console.warn(
-              '[IDEAL Push 12.15.3] Recuperação automática pendente:',
+              '[IDEAL Push 12.15.4] Recuperação automática pendente:',
               err
             );
           }
         },
-        1200
+        1500
       );
     }
 
