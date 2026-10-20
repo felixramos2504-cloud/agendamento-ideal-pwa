@@ -1,9 +1,9 @@
 /* =========================================================
-   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.2 — RECUPERAÇÃO PUSH FIREBASE
+   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.3 — PUSH EM SEGUNDO PLANO
    FIREBASE MESSAGING + PWA — FID
    ========================================================= */
 
-const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-2-push';
+const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-3-background';
 
 const STATIC_FILES = [
   './',
@@ -194,7 +194,8 @@ messaging.onBackgroundMessage(payload => {
      * MASTER 9.7.6.1 — CORREÇÃO DE DUPLICIDADE
      *
      * Quando a mensagem possui "notification", o próprio Firebase
-     * Messaging exibe a notificação do sistema automaticamente.
+     * Messaging exibe a notificação do sistema automaticamente em segundo plano.
+     * O servidor da MASTER 12.15.3 passou a enviar este formato por padrão.
      *
      * A versão anterior chamava showNotification() novamente,
      * causando duas notificações iguais.
@@ -288,6 +289,26 @@ messaging.onBackgroundMessage(payload => {
       throw err;
     }
   })();
+});
+
+
+/* MASTER 12 · ETAPA 15.3 — teste local do canal de notificações. */
+self.addEventListener('message', event => {
+  const d = event && event.data ? event.data : {};
+  if(d.type !== 'IDEAL_TEST_NOTIFICATION') return;
+
+  event.waitUntil(
+    self.registration.showNotification(
+      d.title || 'Teste local IDEAL',
+      {
+        body: d.body || 'Canal de notificações funcionando.',
+        icon: './icon-192.png',
+        badge: './icon-192.png',
+        tag: 'ideal-teste-local',
+        data: { url: d.url || './' }
+      }
+    )
+  );
 });
 
 /* =========================
