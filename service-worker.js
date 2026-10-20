@@ -1,9 +1,9 @@
 /* =========================================================
-   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.3 — PUSH EM SEGUNDO PLANO
+   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.4 — FID + PUSH EM SEGUNDO PLANO
    FIREBASE MESSAGING + PWA — FID
    ========================================================= */
 
-const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-3-background';
+const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-4-fid-background';
 
 const STATIC_FILES = [
   './',
@@ -164,135 +164,69 @@ const messaging = firebase.messaging();
  * O handler cria a notificação do sistema explicitamente.
  */
 messaging.onBackgroundMessage(payload => {
-  const resumo = {
-    notification:
-      payload && payload.notification
-        ? payload.notification
-        : null,
-    data:
-      payload && payload.data
-        ? payload.data
-        : null,
-    fcmOptions:
-      payload && payload.fcmOptions
-        ? payload.fcmOptions
-        : null
+  const data = (payload && payload.data) || {};
+  const notification = (payload && payload.notification) || {};
+  const fcmOptions = (payload && payload.fcmOptions) || {};
+
+  const title = data.title || notification.title || 'IDEAL Supermercados';
+  const body = data.body || notification.body || 'Você recebeu uma nova atualização.';
+  const tag = data.tag || ('ideal-' + (data.notificationId || Date.now()));
+  const destino = fcmOptions.link || data.url || './';
+
+  const options = {
+    body: body,
+    icon: data.icon || './icon-192.png',
+    badge: './icon-192.png',
+    tag: tag,
+    renotify: true,
+    silent: false,
+    data: { url: destino }
   };
 
-  console.log(
-    '[IDEAL Push] Mensagem recebida em segundo plano:',
-    payload
-  );
-
   return (async () => {
-    await logDiag(
-      'FCM_BACKGROUND_RECEBIDO',
-      resumo
-    );
-
-    /*
-     * MASTER 9.7.6.1 — CORREÇÃO DE DUPLICIDADE
-     *
-     * Quando a mensagem possui "notification", o próprio Firebase
-     * Messaging exibe a notificação do sistema automaticamente em segundo plano.
-     * O servidor da MASTER 12.15.3 passou a enviar este formato por padrão.
-     *
-     * A versão anterior chamava showNotification() novamente,
-     * causando duas notificações iguais.
-     */
-    if(
-      payload &&
-      payload.notification
-    ){
-      await logDiag(
-        'FCM_AUTO_NOTIFICATION',
-        {
-          title:
-            payload.notification.title || '',
-          body:
-            payload.notification.body || ''
-        }
-      );
-
-      return;
-    }
-
-    /*
-     * Mensagens DATA-ONLY não são exibidas automaticamente.
-     * Para elas mantemos showNotification() manual.
-     */
-    const data =
-      (payload && payload.data) || {};
-
-    const fcmOptions =
-      (payload && payload.fcmOptions) || {};
-
-    const title =
-      data.title ||
-      'IDEAL Supermercados';
-
-    const options = {
-      body:
-        data.body ||
-        'Você recebeu uma nova atualização.',
-      icon:
-        data.icon ||
-        './icon-192.png',
-      badge:
-        './icon-192.png',
-      tag:
-        data.tag ||
-        'ideal-ofertas',
-      renotify: true,
-      data: {
-        url:
-          fcmOptions.link ||
-          data.url ||
-          './'
-      }
-    };
+    await logDiag('FCM_BACKGROUND_RECEBIDO', {
+      title: title,
+      body: body,
+      tag: tag,
+      data: data
+    });
 
     try{
-      await self.registration.showNotification(
-        title,
-        options
-      );
+      /*
+       * A MASTER 12.15.4 usa DATA-ONLY no servidor, portanto esta chamada
+       * é a responsável por exibir a notificação do sistema em background.
+       */
+      await self.registration.showNotification(title, options);
 
-      /* Também avisa páginas abertas para atualizar o toast/central em tempo real. */
+      await logDiag('SHOW_NOTIFICATION_OK', {
+        title: title,
+        body: body,
+        tag: tag
+      });
+
       try{
-        const clientes = await self.clients.matchAll({type:'window', includeUncontrolled:true});
+        const clientes = await self.clients.matchAll({
+          type: 'window',
+          includeUncontrolled: true
+        });
         for(const client of clientes){
-          client.postMessage({type:'IDEAL_PUSH', payload:{data:data}});
+          client.postMessage({
+            type: 'IDEAL_PUSH',
+            payload: { data: data, notification: notification }
+          });
         }
       }catch(_){ }
-
-      await logDiag(
-        'SHOW_NOTIFICATION_OK',
-        {
-          title,
-          body: options.body
-        }
-      );
     }catch(err){
-      await logDiag(
-        'SHOW_NOTIFICATION_ERRO',
-        {
-          mensagem:
-            String(
-              err &&
-              (err.stack || err.message) ||
-              err
-            )
-        }
-      );
-
+      await logDiag('SHOW_NOTIFICATION_ERRO', {
+        mensagem: String(err && (err.stack || err.message) || err)
+      });
       throw err;
     }
   })();
 });
 
 
-/* MASTER 12 · ETAPA 15.3 — teste local do canal de notificações. */
+/* MASTER 12 · ETAPA 15.4 — teste local do canal de notificações. */
 self.addEventListener('message', event => {
   const d = event && event.data ? event.data : {};
   if(d.type !== 'IDEAL_TEST_NOTIFICATION') return;
