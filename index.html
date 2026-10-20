@@ -492,6 +492,7 @@ body.idealSplashAberta #iosHelp{
   <!-- MASTER 9.7.2 — NOTIFICAÇÕES PUSH -->
   <div id="pushBox">
     <button id="btnPush" type="button">🔔 Ativar notificações</button>
+    <button id="btnPushLocalTest" type="button" style="display:none;margin-top:8px;background:#fff;color:#e30613;border:1px solid #e30613;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer">🧪 Testar aviso neste aparelho</button>
     <div id="pushMsg"></div>
   </div>
 
@@ -544,7 +545,7 @@ body.idealSplashAberta #iosHelp{
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js?v=12151', { scope: './', updateViaCache: 'none' })
+        navigator.serviceWorker.register('./service-worker.js?v=12153', { scope: './', updateViaCache: 'none' })
           .then(reg => console.log('IDEAL PWA ativo:', reg.scope))
           .catch(err => console.error('Erro Service Worker:', err));
       });
@@ -628,14 +629,17 @@ body.idealSplashAberta #iosHelp{
     const VAPID_PUBLIC_KEY =
       "BFqbS_rj0lihvZnpl3n6RBf58k1U5S8i96ziLKok2d19uuV8oo1hv6utVLz2KIUaJYKkdaYpHzuw0T1dVK4_2Mw";
 
-    const IDEAL_PUSH_VERSION = '12.15.2';
-    const IDEAL_SW_URL = './service-worker.js?v=12152';
+    const IDEAL_PUSH_VERSION = '12.15.3';
+    const IDEAL_SW_URL = './service-worker.js?v=12153';
 
     const btnPush =
       document.getElementById('btnPush');
 
     const pushMsg =
       document.getElementById('pushMsg');
+
+    const btnPushLocalTest =
+      document.getElementById('btnPushLocalTest');
 
     const pushToast =
       document.getElementById('pushToast');
@@ -659,8 +663,8 @@ body.idealSplashAberta #iosHelp{
     let tokenConfirmadoBackend = '';
 
     /* MASTER 12 · ETAPA 15 — renovação controlada do registro Push. */
-    const IDEAL_PUSH_RECOVERY_KEY = 'idealPushRecovery12152';
-    const IDEAL_PUSH_REFRESH_KEY = 'idealPushRefresh12152';
+    const IDEAL_PUSH_RECOVERY_KEY = 'idealPushRecovery12153';
+    const IDEAL_PUSH_REFRESH_KEY = 'idealPushRefresh12153';
 
     async function renovarRegistroPush1215(){
       if(!('Notification' in window) || Notification.permission !== 'granted'){
@@ -672,7 +676,7 @@ body.idealSplashAberta #iosHelp{
         try{
           await deleteToken(messaging);
         }catch(err){
-          console.warn('[IDEAL Push 12.15] Não havia token anterior para excluir ou a exclusão falhou:', err);
+          console.warn('[IDEAL Push 12.15.3] Não havia token anterior para excluir ou a exclusão falhou:', err);
         }
 
         localStorage.removeItem('idealFcmToken');
@@ -715,7 +719,7 @@ body.idealSplashAberta #iosHelp{
           localStorage.setItem(IDEAL_PUSH_REFRESH_KEY, String(Date.now()));
         }
       }catch(err){
-        console.warn('[IDEAL Push 12.15] Atualização periódica pendente:', err);
+        console.warn('[IDEAL Push 12.15.3] Atualização periódica pendente:', err);
       }
     }
 
@@ -1425,6 +1429,46 @@ body.idealSplashAberta #iosHelp{
       }
     }
 
+
+    async function testarNotificacaoLocal12153(){
+      try{
+        if(!('Notification' in window)){
+          throw new Error('Este navegador não oferece suporte a notificações.');
+        }
+        if(Notification.permission !== 'granted'){
+          throw new Error('A permissão de notificações não está liberada.');
+        }
+        const reg = await navigator.serviceWorker.register(
+          IDEAL_SW_URL,
+          { scope:'./', updateViaCache:'none' }
+        );
+        try{ await reg.update(); }catch(_){}
+        const ativo = reg.active ? reg : await navigator.serviceWorker.ready;
+        await ativo.showNotification('Teste local IDEAL', {
+          body:'Se este aviso apareceu, Chrome/Windows e o Service Worker estão autorizados a mostrar notificações.',
+          icon:'./icon-192.png',
+          badge:'./icon-192.png',
+          tag:'ideal-teste-local-' + Date.now(),
+          data:{url:'./'}
+        });
+        mostrarMensagemPush('✅ Teste local enviado. Verifique a central de notificações do sistema.');
+      }catch(err){
+        mostrarMensagemPush('❌ Teste local falhou: ' + String(err && (err.message||err) || err), 12000);
+      }
+    }
+
+    if(btnPushLocalTest){
+      btnPushLocalTest.addEventListener('click', testarNotificacaoLocal12153);
+      const atualizarTesteLocal = () => {
+        btnPushLocalTest.style.display =
+          ('Notification' in window && Notification.permission === 'granted')
+            ? 'inline-block'
+            : 'none';
+      };
+      atualizarTesteLocal();
+      window.addEventListener('focus', atualizarTesteLocal);
+    }
+
     btnPush.addEventListener(
       'click',
       async () => {
@@ -1545,7 +1589,7 @@ body.idealSplashAberta #iosHelp{
             await renovarRegistroPush1215();
           }catch(err){
             console.warn(
-              '[IDEAL Push 12.15] Recuperação automática pendente:',
+              '[IDEAL Push 12.15.3] Recuperação automática pendente:',
               err
             );
           }
