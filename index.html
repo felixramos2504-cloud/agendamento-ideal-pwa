@@ -339,9 +339,21 @@ body.idealSplashAberta #iosHelp{
 }
 
 
-/* MASTER 9.7.7.9 — SEM ABA VISÍVEL DE NOTIFICAÇÕES */
+/* MASTER 9.7.7.9 + MASTER 12.15.5 — mantém a aba antiga oculta, mas libera o diagnóstico Push */
 #pushBox {
+  display: flex !important;
+}
+#pushBox #btnPush,
+#pushBox #btnPushLocalTest,
+#pushBox #pushMsg {
   display: none !important;
+}
+#pushBox #btnPushDiag {
+  display: inline-block !important;
+  pointer-events: auto !important;
+}
+#pushBox #pushDiagPanel {
+  pointer-events: auto !important;
 }
 
 
