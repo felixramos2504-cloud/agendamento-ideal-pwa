@@ -1,9 +1,9 @@
 /* =========================================================
-   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15 — RECUPERAÇÃO PUSH FIREBASE
+   IDEAL SUPERMERCADOS — MASTER 12 · ETAPA 15.2 — RECUPERAÇÃO PUSH FIREBASE
    FIREBASE MESSAGING + PWA — FID
    ========================================================= */
 
-const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-push';
+const CACHE_NAME = 'ideal-ofertas-pwa-shell-v12-etapa15-2-push';
 
 const STATIC_FILES = [
   './',
